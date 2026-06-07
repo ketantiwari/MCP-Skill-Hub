@@ -25,11 +25,13 @@ class QueryInterceptor:
         result = self.workflow.run(query)
         spec = result.get("tool_spec")
         if spec is None or not result.get("validation_passed"):
-            return {
+            response = {
                 "status": "rejected",
                 "intent": result.get("intent"),
                 "messages": result.get("messages", []),
             }
+            self._log_audit(query, response)
+            return response
 
         version_number = self.registry.next_version_number(spec.name)
         tool_manifest = self._build_tool_manifest(spec, version_number)
@@ -59,7 +61,7 @@ class QueryInterceptor:
             version_record=version_record,
         )
 
-        return {
+        response = {
             "status": "published",
             "tool_name": spec.name,
             "version": version_number,
@@ -67,6 +69,26 @@ class QueryInterceptor:
             "messages": result.get("messages", []),
             "tool_path": str(self.registry.version_dir(spec.name, version_number)),
         }
+        self._log_audit(query, response)
+        return response
+
+    def _log_audit(self, query: str, result: dict[str, Any]) -> None:
+        from dynamic_mcp_skill_hub.config import get_settings
+        log_file = Path(get_settings().log_dir) / "audit.jsonl"
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        audit_entry = {
+            "timestamp": now,
+            "query": query,
+            "intent": result.get("intent", "unknown"),
+            "status": result.get("status", "unknown"),
+            "tool_name": result.get("tool_name", "-"),
+            "version": result.get("version", "-"),
+            "messages": result.get("messages", []),
+        }
+        with open(log_file, "a", encoding="utf-8") as f:
+            f.write(json.dumps(audit_entry) + "\n")
 
     def _build_tool_manifest(self, spec: ToolSpec, version_number: str) -> Tool:
         existing_versions = self.registry.list_version_names(spec.name)

@@ -6,6 +6,7 @@ requires-python = ">=3.11"
 dependencies = [
   "langgraph>=0.2.0",
   "mcp>=1.0.0",
+  "reflex>=0.9.4",
   "pydantic>=2.7.0",
   "pydantic-settings>=2.2.0",
   "python-dotenv>=1.0.1",
@@ -27,8 +28,13 @@ dynamic-mcp-skill-hub = "dynamic_mcp_skill_hub.main:main"
 requires = ["setuptools>=69.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.setuptools]
+packages = ["dynamic_mcp_skill_hub", "app"]
+py-modules = ["rxconfig"]
+
+[tool.setuptools.package-dir]
+dynamic_mcp_skill_hub = "src/dynamic_mcp_skill_hub"
+app = "app"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -41,4 +47,3 @@ target-version = "py311"
 [tool.mypy]
 python_version = "3.11"
 strict = true
-

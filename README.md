@@ -2,6 +2,12 @@
 
 Dynamic MCP Skill Hub is a Python, filesystem-first backend for creating, validating, versioning, publishing, and executing generated MCP tools without using a database in the MVP.
 
+## Web Portal UI
+
+The project features a premium, responsive Web Portal UI built with Reflex that lets you generate skills, track workspace registry status, view live output manifests, and monitor session telemetry and execution audit logs.
+
+![Web Portal UI](assets/dashboard.png)
+
 ## What This Project Builds
 
 - Accepts natural-language requests for new tools, tool updates, rollbacks, or executions.
