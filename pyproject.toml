@@ -1,0 +1,44 @@
+[project]
+name = "dynamic-mcp-skill-hub"
+version = "0.1.0"
+description = "Filesystem-based agentic MCP tool creation, validation, versioning, and execution hub."
+requires-python = ">=3.11"
+dependencies = [
+  "langgraph>=0.2.0",
+  "mcp>=1.0.0",
+  "pydantic>=2.7.0",
+  "pydantic-settings>=2.2.0",
+  "python-dotenv>=1.0.1",
+  "structlog>=24.1.0",
+  "httpx>=0.27.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2.0",
+  "ruff>=0.5.0",
+  "mypy>=1.10.0"
+]
+
+[project.scripts]
+dynamic-mcp-skill-hub = "dynamic_mcp_skill_hub.main:main"
+
+[build-system]
+requires = ["setuptools>=69.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+

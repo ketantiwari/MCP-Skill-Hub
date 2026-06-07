@@ -1,0 +1,30 @@
+# Build output
+dist/
+coverage/
+build/
+*.egg-info/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Local-only project content
+tests/
+workspace/
+requirements-dev.txt
+
+# Environment and secrets
+.env
+.env.local
+*.log
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
