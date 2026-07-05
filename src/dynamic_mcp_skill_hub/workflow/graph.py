@@ -110,8 +110,8 @@ class ToolCreationWorkflow:
             sources = self.research.search(state["user_request"])
             state["spec"]["research_sources"] = [source.__dict__ for source in sources]
             state["messages"].append(f"Research attached with {len(sources)} source(s).")
-        except Exception as exc:
-            state["messages"].append(f"Research failed/skipped: {exc}")
+        except Exception:
+            state["messages"].append("Research skipped because the external lookup failed.")
 
     def _validate(self, state: WorkflowState) -> None:
         report = self.validator.validate_spec(state["spec"])

@@ -35,3 +35,10 @@ requirements-dev.txt
 Thumbs.db
 .vscode/
 .idea/
+
+# System and caching locks
+MCP.pytest_cache/
+tmp/
+pytest_cache/
+pytest-of-*/
+*.ipynb

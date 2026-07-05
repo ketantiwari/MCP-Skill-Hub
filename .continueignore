@@ -1,0 +1,12 @@
+# Ignore temp and build folders to prevent scan permission issues (EPERM)
+tmp/
+workspace/
+.venv/
+.pytest_cache/
+MCP.pytest_cache/
+__pycache__/
+.web/
+.git/
+node_modules/
+dist/
+build/

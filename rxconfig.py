@@ -7,18 +7,17 @@ os.environ["REFLEX_HOT_RELOAD_EXCLUDE_PATHS"] = "workspace"
 
 config = rx.Config(
     app_name="app",
-    frontend_port=3000,
-    backend_port=8000,
+    frontend_port=3030,
+    backend_port=8030,
     disable_plugins=[rx.plugins.SitemapPlugin],
     plugins=[
         rx.plugins.RadixThemesPlugin(
             theme=rx.theme(
-                appearance="dark",
+                appearance="inherit",
                 has_background=True,
                 radius="large",
-                accent_color="violet",
+                accent_color="cyan",
             )
         )
     ]
 )
-

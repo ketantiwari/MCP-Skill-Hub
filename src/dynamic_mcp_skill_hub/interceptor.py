@@ -37,7 +37,7 @@ class QueryInterceptor:
         tool_manifest = self._build_tool_manifest(spec, version_number)
         version_record = self._build_version_record(spec, version_number)
         schema = generate_schema(spec)
-        code = generate_python_tool_code(spec)
+        code = generate_python_tool_code(spec, model_router=self.workflow.model_router)
         tests = generate_test_cases(spec)
         validation_report = {
             "passed": True,

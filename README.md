@@ -4,9 +4,7 @@ Dynamic MCP Skill Hub is a Python, filesystem-first backend for creating, valida
 
 ## Web Portal UI
 
-The project features a premium, responsive Web Portal UI built with Reflex that lets you generate skills, track workspace registry status, view live output manifests, and monitor session telemetry and execution audit logs.
-
-![Web Portal UI](assets/dashboard.png)
+The project now includes a Reflex-based browser portal where you can chat with the agent, let it answer directly, or have it build a tool through the MCP skill hub and show the result in the UI.
 
 ## What This Project Builds
 
@@ -63,7 +61,7 @@ tests/             Unit and integration tests
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements-dev.txt
-python -m dynamic_mcp_skill_hub.main
+reflex run
 ```
 
 Fill `.env` with provider keys before running real generation or research:
@@ -94,8 +92,7 @@ It demonstrates the expected version folder layout, manifests, schema, validatio
 ## Useful Commands
 
 ```bash
-python -m dynamic_mcp_skill_hub.main
-python -m dynamic_mcp_skill_hub.main --query "Build me a simple math tool"
+reflex run
 pytest
 ruff check .
 mypy src
@@ -106,13 +103,13 @@ mypy src
 Once your `.env` has the provider keys, run:
 
 ```bash
-.venv\Scripts\python.exe -m dynamic_mcp_skill_hub.main --query "Create a simple weather lookup tool"
+reflex run
 ```
 
 That should:
 
-- classify the request
-- generate a tool spec with Gemini or Groq
-- optionally add Tavily research if needed
-- write a versioned tool folder under `workspace/tools`
-- update `current.json`
+- open the browser portal
+- classify the request through Gemini or Groq
+- answer directly when possible
+- build and publish a tool when the request needs one
+- show the latest tool result in the portal

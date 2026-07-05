@@ -6,6 +6,7 @@ requires-python = ">=3.11"
 dependencies = [
   "langgraph>=0.2.0",
   "mcp>=1.0.0",
+  "openai>=1.0.0",
   "reflex>=0.9.4",
   "pydantic>=2.7.0",
   "pydantic-settings>=2.2.0",
@@ -39,6 +40,7 @@ app = "app"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+cache_dir = ".pytest_cache"
 
 [tool.ruff]
 line-length = 100

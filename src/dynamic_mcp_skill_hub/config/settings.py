@@ -18,7 +18,10 @@ class Settings(BaseSettings):
     google_model: str = Field(default="gemini-2.5-flash", alias="GOOGLE_MODEL")
     groq_api_key: str = Field(default="", alias="GROQ_API_KEY")
     groq_model: str = Field(default="llama-3.3-70b-versatile", alias="GROQ_MODEL")
-    model_timeout_ms: int = Field(default=30_000, alias="MODEL_TIMEOUT_MS")
+    # NVIDIA NIM / DeepSeek V4 Pro
+    nvidia_api_key: str = Field(default="", alias="NVIDIA_API_KEY")
+    nvidia_deepseek_model: str = Field(default="deepseek-ai/deepseek-v4-pro", alias="NVIDIA_DEEPSEEK_MODEL")
+    model_timeout_ms: int = Field(default=60_000, alias="MODEL_TIMEOUT_MS")
     model_max_retries: int = Field(default=2, alias="MODEL_MAX_RETRIES")
 
     tavily_api_key: str = Field(default="", alias="TAVILY_API_KEY")

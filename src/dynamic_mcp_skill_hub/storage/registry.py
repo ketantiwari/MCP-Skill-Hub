@@ -107,3 +107,21 @@ class FilesystemToolRegistry:
         self.save_version_manifest(tool_name, version_record)
         self.point_current_version(tool_name, version_number)
         return version_dir
+
+    def list_all_tools(self) -> list[str]:
+        if not self.registry_dir.exists():
+            return []
+        return sorted([
+            path.name
+            for path in self.registry_dir.iterdir()
+            if path.is_dir() and not path.name.startswith(".") and not path.name.startswith("__")
+        ])
+
+    def get_tool_manifest(self, tool_name: str) -> dict[str, Any] | None:
+        try:
+            manifest_path = self.tool_dir(tool_name) / "manifests" / "tool.json"
+            if manifest_path.exists():
+                return self.read_json(manifest_path)
+        except Exception:
+            pass
+        return None
