@@ -1,115 +1,129 @@
 # Dynamic MCP Skill Hub
 
-Dynamic MCP Skill Hub is a Python, filesystem-first backend for creating, validating, versioning, publishing, and executing generated MCP tools without using a database in the MVP.
+Dynamic MCP Skill Hub is a filesystem-first, database-free Python backend and dashboard for automatically creating, validating, versioning, publishing, and executing Model Context Protocol (MCP) tools.
 
-## Web Portal UI
+---
 
-The project now includes a Reflex-based browser portal where you can chat with the agent, let it answer directly, or have it build a tool through the MCP skill hub and show the result in the UI.
+## 🗺️ System Architecture
 
-## What This Project Builds
-
-- Accepts natural-language requests for new tools, tool updates, rollbacks, or executions.
-- Converts requests into canonical tool specifications.
-- Generates source code, schemas, tests, manifests, and metadata.
-- Validates generated artifacts before publishing.
-- Stores every tool and version as immutable files under `workspace/tools`.
-- Exposes published tools through an MCP server.
-- Executes tools through a sandbox runner.
-- Uses Gemini first, Groq as fallback, and Tavily when factual research is needed.
-- Keeps audit logs and runtime history on the filesystem.
-
-## Architecture
-
-```text
-User Request
-  -> Intake Node
-  -> Spec Builder Node
-  -> Research Node
-  -> Code Generation Node
-  -> Validation Node
-  -> Approval Node
-  -> Publish Node
-  -> MCP Server / Execute Node
-  -> Filesystem Logs and Versioned Manifests
+```mermaid
+flowchart TD
+    UserRequest([Natural Language Request]) --> Intake[Intake Classifier]
+    Intake -->|Factual Query| Research[Research Agent / Tavily]
+    Intake -->|Tool Generation| SpecBuilder[Spec Creator]
+    
+    Research --> DirectAnswer[Direct Answer]
+    SpecBuilder --> CodeGen[NVIDIA DeepSeek Coder]
+    
+    CodeGen --> Validation[Tool Validator]
+    Validation -->|Safety/Lint Checks Passed| Approve[Approval Node]
+    Validation -->|Failed Checks| SelfCorrect[Self-Correction Loop]
+    SelfCorrect --> CodeGen
+    
+    Approve -->|Approved| Publish[Publish Node]
+    Publish --> ImmutableFiles[(Workspace Tools Registry)]
+    
+    ImmutableFiles --> MCPServer[FastMCP Server]
+    ImmutableFiles --> Sandbox[Execution Sandbox]
 ```
 
-## Repository Layout
+---
+
+## 🚀 Key Features
+
+*   **Natural Language Coding:** Generates fully functional Python tools from natural language requests.
+*   **Self-Correction Loop:** Validates tool syntax and schema safety, feeding compiler errors back to the LLM (DeepSeek V4 Pro) for auto-debugging.
+*   **Immutable Versioning:** Stores generated tool versions as immutable directories under `workspace/tools` without needing an external database.
+*   **Dual Mode:** Can be run as a headless, stdio-compatible FastMCP server or as a comprehensive Web UI dashboard.
+*   **Multi-Model Router:** Integrates Gemini 2.5 Flash as the default router, Groq Llama 3.3 as high-concurrency fallback, and NVIDIA NIM (DeepSeek V4 Pro) for code generation.
+
+---
+
+## 📂 Repository Layout
 
 ```text
-src/
-  dynamic_mcp_skill_hub/
-    config/        Environment config
-    execution/     Sandboxed tool execution
-    llm/           Gemini primary and Groq fallback routing
-    mcp/           MCP server registration and discovery
-    models/        Strict Python/Pydantic data models
-    research/      Tavily adapter
-    storage/       Filesystem registry
-    utils/         Logging helpers
-    validation/    Schema, test, and safety validation
-    workflow/      LangGraph workflow skeleton
-workspace/
-  tools/           Source of truth for tools and versions
-  runtime/         Temporary runtime state
-  logs/            Audit and execution logs
-tests/             Unit and integration tests
+├── .github/workflows/    # CI/CD pipelines (unit testing & code checks)
+├── app/                  # Main entry point for the Reflex UI
+├── src/
+│   └── dynamic_mcp_skill_hub/
+│       ├── agent/        # LangGraph agent orchestrators
+│       ├── codegen/      # Python tool code generators
+│       ├── config/       # Environment loading (Pydantic Settings)
+│       ├── execution/    # Sandbox runner
+│       ├── llm/          # Multi-model routing client
+│       ├── mcp/          # FastMCP server registration
+│       ├── storage/      # Filesystem tool registry
+│       ├── utils/        # Rotating structured logging configuration
+│       └── validation/   # Code compilation & validation
+├── workspace/
+│   ├── logs/             # Rotating execution logs (app.log)
+│   ├── runtime/          # Sandbox temp executions
+│   └── tools/            # Immutable tools registry
+├── Dockerfile            # Production-grade multi-stage Docker image
+├── docker-compose.yml    # Service composer for server and dashboard
+├── Makefile              # Local developer task mapping
+└── rxconfig.py           # Reflex UI dashboard settings
 ```
 
-## Setup
+---
+
+## 🛠️ Local Development Setup
+
+### Prerequisites
+*   Python 3.11 or 3.12
+*   Node.js v20+ and npm (Required for Reflex UI frontend)
+
+### Installation
+Configure the workspace using the helper `Makefile`:
 
 ```bash
+# Clone the repository
+git clone https://github.com/ketantiwari/MCP-Skill-Hub.git
+cd MCP-Skill-Hub
+
+# Create and activate virtual environment
 python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements-dev.txt
-reflex run
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies and dev packages
+make install
 ```
 
-Fill `.env` with provider keys before running real generation or research:
-
-- `GEMINI_API_KEY`
-- `GROQ_API_KEY`
-- `TAVILY_API_KEY`
-
-## MVP Rules
-
-- No database, ORM, or DBMS.
-- Published versions are immutable.
-- Rollback only updates `current.json`.
-- Failed validation blocks publishing.
-- Destructive tools require approval.
-- Runtime caches are convenience only, never the source of truth.
-
-## Example Tool
-
-An initial example tool lives at:
-
-```text
-workspace/tools/simple_math/
-```
-
-It demonstrates the expected version folder layout, manifests, schema, validation report, publish report, and README.
-
-## Useful Commands
-
+Configure your credentials by copying the environment template:
 ```bash
-reflex run
-pytest
-ruff check .
-mypy src
+cp .env.example .env
+# Edit the .env file with your model and API keys
 ```
 
-## End-to-End Query Test
+### Development Commands
+*   **Start headess MCP Server:** `make run-mcp`
+*   **Start Reflex UI Dashboard:** `make run-ui`
+*   **Run unit test suite:** `make test`
+*   **Clean all caches and temp files:** `make clean`
 
-Once your `.env` has the provider keys, run:
+---
 
+## 🐳 Docker Deployment Setup
+
+### 1. Build Image Locally
+To build the multi-stage, non-root user production image:
 ```bash
-reflex run
+make docker-build
 ```
 
-That should:
+### 2. Multi-Service Container Orchestration (Docker Compose)
+Start the entire service stack (FastMCP server + UI dashboard) in the background with persistent directory mapping:
+```bash
+make docker-run
+```
 
-- open the browser portal
-- classify the request through Gemini or Groq
-- answer directly when possible
-- build and publish a tool when the request needs one
-- show the latest tool result in the portal
+This launches:
+*   **`ui-dashboard`** on ports `http://localhost:3030` (Frontend) and `http://localhost:8030` (Backend API).
+*   **`mcp-server`** running FastMCP with a shared persistent `workspace/` volume mount.
+
+---
+
+## 📈 Logging & Observability
+
+*   Logs are centralized in **`workspace/logs/app.log`** using `structlog` standard library wrapping.
+*   The log file is automatically rotated when it reaches **10MB**, maintaining a maximum of **5 backup logs** to prevent filesystem exhaustion in production environments.

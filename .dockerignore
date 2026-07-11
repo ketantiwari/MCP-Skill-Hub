@@ -1,12 +1,36 @@
-__pycache__
-.pytest_cache
-.mypy_cache
-.ruff_cache
-.venv
-venv
-dist
-build
-coverage
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Reflex/Web Cache
+.web/
+.reflex/
+reflex.lock/
+node_modules/
+
+# Local workspace content (dynamic tools are mounted/generated)
+workspace/logs/
+workspace/runtime/
+workspace/tools/
 .env
-workspace/logs
-workspace/runtime
+.env.*
+
+# Build and OS files
+dist/
+build/
+*.egg-info/
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.github/

@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # The FastMCP Server Service (STDIO/SSE backend)
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp-skill-hub-server
+    command: python -m dynamic_mcp_skill_hub.main
+    env_file:
+      - .env
+    volumes:
+      - ./workspace:/app/workspace
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # The Reflex Web UI Dashboard Service
+  ui-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp-skill-hub-ui
+    # In production, run Reflex with the --env prod flag
+    command: reflex run --env prod
+    ports:
+      - "3030:3030"
+      - "8030:8030"
+    env_file:
+      - .env
+    volumes:
+      - ./workspace:/app/workspace
+    depends_on:
+      - mcp-server
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

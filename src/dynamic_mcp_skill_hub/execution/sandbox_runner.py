@@ -8,6 +8,7 @@ from uuid import uuid4
 from typing import Any
 
 from dynamic_mcp_skill_hub.models import ToolRun
+from dynamic_mcp_skill_hub.utils import logger
 
 
 class SandboxRunner:
@@ -15,19 +16,34 @@ class SandboxRunner:
         started_at = datetime.now(UTC).isoformat()
         run_id = str(uuid4())
         
+        logger.info(
+            "running_sandbox_tool",
+            tool_id=tool_id,
+            version=version_number,
+            run_id=run_id,
+            input=input_data,
+        )
+        
         # Build the exact path to tool.py
         from dynamic_mcp_skill_hub.config import get_settings
         settings = get_settings()
         tool_file = Path(settings.tool_registry_dir) / tool_id / "versions" / version_number / "tool.py"
         
         if not tool_file.exists():
+            error_msg = f"Tool file not found: {tool_file}"
+            logger.error(
+                "sandbox_tool_missing_file",
+                tool_id=tool_id,
+                version=version_number,
+                file_path=str(tool_file),
+            )
             return ToolRun(
                 run_id=run_id,
                 tool_id=tool_id,
                 version_number=version_number,
                 input=input_data,
                 started_at=started_at,
-                error=f"Tool file not found: {tool_file}",
+                error=error_msg,
                 finished_at=datetime.now(UTC).isoformat(),
             )
             
@@ -51,6 +67,13 @@ class SandboxRunner:
             # Clean up sys.modules to prevent memory leaks
             sys.modules.pop(module_name, None)
             
+            logger.info(
+                "sandbox_tool_run_success",
+                tool_id=tool_id,
+                version=version_number,
+                run_id=run_id,
+            )
+            
             return ToolRun(
                 run_id=run_id,
                 tool_id=tool_id,
@@ -63,6 +86,13 @@ class SandboxRunner:
         except Exception as exc:
             import traceback
             tb = traceback.format_exc()
+            logger.error(
+                "sandbox_tool_run_failed",
+                tool_id=tool_id,
+                version=version_number,
+                run_id=run_id,
+                error=str(exc),
+            )
             return ToolRun(
                 run_id=run_id,
                 tool_id=tool_id,
